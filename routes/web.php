@@ -18,6 +18,10 @@ Route::put('/modify', [Task_Controller::class,'update'])->name('modify');
 Route::post('/show-search', [Task_Controller::class,"searchdata"]);
 Route::post('/login', [Task_Controller::class,"login"]);
 
+Route::get('/pusher',function(){
+    return view('pusher');
+});
+
 // // use api only
 // Route::get('/', [Task_Controller::class,'show'])->name('show');
 // Route::get('/show-search', [Task_Controller::class,"searchdata"]);

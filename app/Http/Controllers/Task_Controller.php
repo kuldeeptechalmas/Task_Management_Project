@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PostCreated;
 use App\Models\task;
 use App\Models\users;
 use Illuminate\Http\Request;
@@ -74,6 +75,8 @@ class Task_Controller extends Controller
             // return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        
+
         $task = new task();
         $task->title = $request->title;
         $task->description = $request->description;
@@ -83,6 +86,9 @@ class Task_Controller extends Controller
         $task->status = $request->status;
         $task->subtasks = $request->subtasks;
         $task->save();
+
+        event(new PostCreated("save successfully"));
+// dd($task);
         return response()->json(["success" => "save"]);
     }
 

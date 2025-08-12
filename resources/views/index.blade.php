@@ -15,6 +15,7 @@
             width: 81%;
         }
     </style>
+    <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
 </head>
 
 <body>
@@ -319,8 +320,8 @@
             document.getElementById('msubtasks').value = subtasks;
             document.getElementById('mdependency').value = dependency;
         }
-
     </script>
+    <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -378,8 +379,8 @@
                     success: function (res) {
                         if (res.success) {
                             toastr.success('Login user');
-                                $("#loginform")[0].reset();
-                                $(".btn-close").trigger("click");
+                            $("#loginform")[0].reset();
+                            $(".btn-close").trigger("click");
                         }
                         else {
                             console.log(res);
@@ -732,7 +733,9 @@
                             console.log("save");
                             $(".btn-close").trigger("click");
                             show_table();
-                            toastr.success('Task added to Data!');
+                            // Enable pusher logging - don't include this in production
+
+                            // toastr.success('Task added to Data!');
                         }
                         else {
                             console.log(res);
@@ -748,6 +751,29 @@
                 });
             });
         });
+    </script>
+    <script>
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('f3599a1dd3027fe082b2', {
+            cluster: 'ap2'
+        });
+
+        var channel = pusher.subscribe('mychannel');
+        channel.bind('save', function (data) {
+            console.log(data);
+
+            alert(JSON.stringify(data));
+        });
+
+        // <script type="module">
+    //         window.Echo.channel('posts')
+    //             .listen('.create', (data) => {
+    //                 console.log('Order status updated: ', data);
+    //                 var d1 = document.getElementById('notification');
+    //                 d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
+    //             });
+    // </script>
     </script>
 </body>
 
