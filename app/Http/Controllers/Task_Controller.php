@@ -17,7 +17,7 @@ class Task_Controller extends Controller
         $validator = Validator::make($request->all(), [
             "email" => "Required",
             "password" => "Required",
-        ]);
+        ]); 
 
         if ($validator->fails()) {
             return response()->json($validator->errors());
