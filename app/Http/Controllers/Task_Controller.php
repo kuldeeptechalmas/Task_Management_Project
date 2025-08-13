@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\PostCreated;
 use App\Models\task;
 use App\Models\users;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Unique;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -13,29 +14,6 @@ use Validator;
 class Task_Controller extends Controller
 {
 
-    public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            "email" => "Required",
-            "password" => "Required",
-        ]); 
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors());
-        }
-
-        $user = users::where("email", $request->email)
-            ->where("password", $request->password)
-            ->first();
-
-        if ($user) {
-            return response()->json(["success"=>"login"]);
-        }
-        else
-        {
-            return response()->json(["user"=>"Not found"]);
-        }
-    }
     public function show_table()
     {
         return view("index");
@@ -87,8 +65,9 @@ class Task_Controller extends Controller
         $task->subtasks = $request->subtasks;
         $task->save();
 
-        event(new PostCreated("save successfully"));
-// dd($task);
+        // event(new PostCreated("save successfully"));
+        // dd(event(new PostCreated("save successfully")));
+        
         return response()->json(["success" => "save"]);
     }
 

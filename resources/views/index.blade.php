@@ -16,44 +16,66 @@
         }
     </style>
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+    <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
+    <script>
+
+        Pusher.logToConsole = true; // helpful for debugging
+
+        var pusher = new Pusher('f3599a1dd3027fe082b2', {
+            cluster: 'ap2'
+        });
+
+        var channel = pusher.subscribe('my-channel');
+
+        channel.bind('save', function (data) {
+            alert(data.message); // Should say: "[save successfully] New Post Received with title."
+        });
+
+    </script>
 </head>
 
 <body>
 
-    <button type="button" class="btn btn-primary" style="margin-left: 82%; width: 152px; height:43px; margin-top: 20px;"
-        data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
-    <h1 style="text-align: center; margin-top: 20px;">Show Task</h1>
+    @auth
+        <form action="/logout" method="post">
+            @csrf
+            <button type="submit" class="btn btn-danger"
+                style="margin-left: 85%; width: 152px; height:43px;margin-top: 25px;">Logout</button>
+        </form>
 
-    <table class="table table-striped table-hover" style="margin-left: 30px; margin-top: 40px;" id="mytable">
-        <tr>
-            <form class="d-flex" id="searchform">
-                <td><input class="form-control me-2" id="searchdata" type="search" name="searchdata"
-                        placeholder="Search" aria-label="Search"></td>
-                <td><button class="btn btn-outline-success" type="submit">Search</button></td>
-            </form>
-            <form id="refreshform">
-                <td><button class="btn btn-outline-success" type="submit">Show</button></td>
-            </form>
 
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>Title</td>
-            <td>Description</td>
-            <td>Status</td>
-            <td>Priority</td>
-            <td>Due Date</td>
-            <td>Action</td>
-        </tr>
-    </table>
+        <h1 style="text-align: center; margin-top: 20px;">Show Task</h1>
 
-    {{-- add button model--}}
-    <button type="button" class="btn btn-primary" style="margin-left: 50px" data-bs-toggle="modal"
-        data-bs-target="#addModal">Add</button>
+        <table class="table table-striped table-hover" style="margin-left: 30px; margin-top: 40px;" id="mytable">
+            <tr>
+                <form class="d-flex" id="searchform">
+                    <td><input class="form-control me-2" id="searchdata" type="search" name="searchdata"
+                            placeholder="Search" aria-label="Search"></td>
+                    <td><button class="btn btn-outline-success" type="submit">Search</button></td>
+                </form>
+                <form id="refreshform">
+                    <td><button class="btn btn-outline-success" type="submit">Show</button></td>
+                </form>
 
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Title</td>
+                <td>Description</td>
+                <td>Status</td>
+                <td>Priority</td>
+                <td>Due Date</td>
+                <td>Action</td>
+            </tr>
+        </table>
+
+        {{-- add button model--}}
+        <button type="button" class="btn btn-primary" style="margin-left: 50px" data-bs-toggle="modal"
+            data-bs-target="#addModal">Add</button>
+    @endauth
     <!-- Delete Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -224,75 +246,8 @@
         </div>
     </div>
 
-    {{-- login model --}}
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">LOGIN USER</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="loginform" style="margin-left: 40px;margin-right:42px;margin-top:25px">
-                    @csrf
 
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="email" class="form-control" id="email" />
-                        <label class="form-label" for="form2Example1">Email address</label>
-                    </div>
-                    <div class="alert alert-danger" id="lemail" hidden></div>
-
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input type="password" class="form-control" id="password" />
-                        <label class="form-label" for="form2Example2">Password</label>
-                    </div>
-                    <div class="alert alert-danger" id="lpassword" hidden></div>
-
-                    <div class="row mb-4">
-                        <div class="col d-flex justify-content-center">
-
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="form2Example31" checked />
-                                <label class="form-check-label" for="form2Example31"> Remember me </label>
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <a href="#!">Forgot password?</a>
-                        </div>
-                    </div>
-
-
-                    <button type="submit" data-mdb-button-init data-mdb-ripple-init
-                        class="btn btn-primary btn-block mb-4" style="width: 100%;">Sign in</button>
-
-
-                    <div class="text-center">
-                        <p>Not a member? <a href="#!">Register</a></p>
-                        <p>or sign up with:</p>
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-facebook-f"></i>
-                        </button>
-
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-google"></i>
-                        </button>
-
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-twitter"></i>
-                        </button>
-
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init
-                            class="btn btn-link btn-floating mx-1">
-                            <i class="fab fa-github"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
@@ -324,9 +279,6 @@
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
     <script>
         $(document).ready(function () {
-
-
-
             $('#addModal').on('shown.bs.modal', function () {
                 $("#etitle").attr("hidden", true);
                 $("#epriority").attr("hidden", true);
@@ -337,6 +289,7 @@
                 $("#estatus").attr("hidden", true);
 
             });
+
 
             $('#updateModel').on('shown.bs.modal', function () {
                 $("#emtitle").attr("hidden", true);
@@ -354,65 +307,10 @@
 
             });
 
-            $('#loginModal').on('shown.bs.modal', function () {
-                $("#lemail").attr("hidden", true);
-                $("#lpassword").attr("hidden", true);
-
-            });
 
             $.ajaxSetup({
                 headers:
                     { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-            });
-
-            // login
-            $("#loginform").on("submit", function (e) {
-                e.preventDefault();
-
-                $.ajax({
-                    type: "post",
-                    url: "/login",
-                    data: {
-                        email: $("#email").val(),
-                        password: $("#password").val(),
-                    },
-                    success: function (res) {
-                        if (res.success) {
-                            toastr.success('Login user');
-                            $("#loginform")[0].reset();
-                            $(".btn-close").trigger("click");
-                        }
-                        else {
-                            console.log(res);
-                            if (res.user) {
-                                toastr.error("User not found");
-                                $("#loginform")[0].reset();
-                                $(".btn-close").trigger("click");
-                            }
-                            else {
-                                if ($.inArray("The email field is required.", res['email']) !== -1) {
-                                    $("#lemail").removeAttr("hidden");
-                                    $("#lemail").text(res['email'][0]);
-                                }
-                                else {
-                                    $("#lemail").attr("hidden", true);
-                                }
-
-                                if ($.inArray("The password field is required.", res['password']) !== -1) {
-                                    $("#lpassword").removeAttr("hidden");
-                                    $("#lpassword").text(res['password'][0]);
-                                }
-                            }
-
-                        }
-
-                    },
-                    error: function (e) {
-                        console.log(e);
-
-                    }
-                });
-
             });
 
             // refresh form 
@@ -733,9 +631,7 @@
                             console.log("save");
                             $(".btn-close").trigger("click");
                             show_table();
-                            // Enable pusher logging - don't include this in production
-
-                            // toastr.success('Task added to Data!');
+                            toastr.success('Task added to Data!');
                         }
                         else {
                             console.log(res);
@@ -751,29 +647,6 @@
                 });
             });
         });
-    </script>
-    <script>
-        Pusher.logToConsole = true;
-
-        var pusher = new Pusher('f3599a1dd3027fe082b2', {
-            cluster: 'ap2'
-        });
-
-        var channel = pusher.subscribe('mychannel');
-        channel.bind('save', function (data) {
-            console.log(data);
-
-            alert(JSON.stringify(data));
-        });
-
-        // <script type="module">
-    //         window.Echo.channel('posts')
-    //             .listen('.create', (data) => {
-    //                 console.log('Order status updated: ', data);
-    //                 var d1 = document.getElementById('notification');
-    //                 d1.insertAdjacentHTML('beforeend', '<div class="alert alert-success alert-dismissible fade show"><span><i class="fa fa-circle-check"></i>  '+data.message+'</span></div>');
-    //             });
-    // </script>
     </script>
 </body>
 
