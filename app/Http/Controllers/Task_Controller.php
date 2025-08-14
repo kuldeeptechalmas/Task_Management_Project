@@ -7,6 +7,7 @@ use App\Models\task;
 use App\Models\users;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
 use Symfony\Contracts\Service\Attribute\Required;
 use Validator;
@@ -16,13 +17,21 @@ class Task_Controller extends Controller
 
     public function show_table()
     {
-        return view("index");
-
+        if (Auth::user()) {
+            return view("index");
+        } else {
+            return view("error");
+        }
     }
     public function show()
     {
-        $task = Task::orderByRaw("FIELD(priority, 'Very high', 'High', 'Medium', 'Low')")->get();
-        return response()->json($task);
+        if (Auth::user()) {
+            $task = Task::orderByRaw("FIELD(priority, 'Very high', 'High', 'Medium', 'Low')")->get();
+            return response()->json($task);
+        } else {
+            return view("error");
+        }
+
     }
 
     public function remove(Request $request)
@@ -53,7 +62,7 @@ class Task_Controller extends Controller
             // return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        
+
 
         $task = new task();
         $task->title = $request->title;
@@ -67,7 +76,7 @@ class Task_Controller extends Controller
 
         // event(new PostCreated("save successfully"));
         // dd(event(new PostCreated("save successfully")));
-        
+
         return response()->json(["success" => "save"]);
     }
 
@@ -75,7 +84,10 @@ class Task_Controller extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            "title" => "Required",
+            'title' => [
+                'required',
+                Rule::unique('task')->ignore($request->id)
+            ],
             "description" => "Required|min:5",
             "priority" => "Required",
             "due_date" => "Required",
@@ -87,9 +99,8 @@ class Task_Controller extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors());
         }
-
         $task = Task::where("id", $request->id)->first();
-        // dd($task);
+
         if ($task) {
             $task->update([
                 "title" => $request->title,
@@ -108,11 +119,12 @@ class Task_Controller extends Controller
     public function searchdata(Request $request)
     {
 
+
         $task = task::where("title", "LIKE", "%" . $request->searchdata . "%")->
             orwhere("description", "LIKE", "%" . $request->searchdata . "%")->
             orwhere("status", "LIKE", "%" . $request->searchdata . "%")->
+            orwhere("priority", "LIKE", "%" . $request->searchdata . "%")->
             orderByRaw("FIELD(priority, 'Very high', 'High', 'Medium', 'Low')")->get();
-
         return response()->json($task);
     }
 

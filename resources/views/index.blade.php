@@ -17,30 +17,17 @@
     </style>
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
-    <script>
 
-        Pusher.logToConsole = true; // helpful for debugging
-
-        var pusher = new Pusher('f3599a1dd3027fe082b2', {
-            cluster: 'ap2'
-        });
-
-        var channel = pusher.subscribe('my-channel');
-
-        channel.bind('save', function (data) {
-            alert(data.message); // Should say: "[save successfully] New Post Received with title."
-        });
-
-    </script>
 </head>
 
 <body>
 
     @auth
-        <form action="/logout" method="post">
+        <form>
             @csrf
-            <button type="submit" class="btn btn-danger"
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#logoutmodel"
                 style="margin-left: 85%; width: 152px; height:43px;margin-top: 25px;">Logout</button>
+
         </form>
 
 
@@ -49,8 +36,8 @@
         <table class="table table-striped table-hover" style="margin-left: 30px; margin-top: 40px;" id="mytable">
             <tr>
                 <form class="d-flex" id="searchform">
-                    <td><input class="form-control me-2" id="searchdata" type="search" name="searchdata"
-                            placeholder="Search" aria-label="Search"></td>
+                    <td><input class="form-control me-2" oninput="searchfunction()" id="searchdata" type="search"
+                            name="searchdata" placeholder="Search" aria-label="Search"></td>
                     <td><button class="btn btn-outline-success" type="submit">Search</button></td>
                 </form>
                 <form id="refreshform">
@@ -60,7 +47,10 @@
                 </td>
                 <td></td>
                 <td></td>
-                <td></td>
+                <td>WELCOME {{Auth::USER()->name}}</td>
+            </tr>
+            <tr>
+
             </tr>
             <tr>
                 <td>Title</td>
@@ -68,8 +58,9 @@
                 <td>Status</td>
                 <td>Priority</td>
                 <td>Due Date</td>
-                <td>Action</td>
+                <td>Actions</td>
             </tr>
+            <tr></tr>
         </table>
 
         {{-- add button model--}}
@@ -246,8 +237,30 @@
         </div>
     </div>
 
+    {{-- Logout Model --}}
+    <div class="modal fade" id="logoutmodel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">LOGOUT USER</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/logout" method="post">
+                    @csrf
+                    <div class="modal-body">
+                        <h2>Confirm Logout</h2>
+                        <p>Are you sure you want to log out?</p>
 
-    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">LOGOUT</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
@@ -278,6 +291,53 @@
     </script>
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
     <script>
+
+        // search data
+        function searchfunction() {
+                // e.preventDefault();
+                console.log($("#searchdata").val());
+                $.ajax({
+                    type: 'post',
+                    url: '/show-search',
+                    data: {
+                        searchdata: $("#searchdata").val(),
+                    },
+                    success: function (data) {
+                    if(data.length==0)
+                        {
+                            $('#mytable tr:gt(2)').remove();
+                           $("#mytable").append(`<tr><td></td><td></td><td style="color:red;">Not Found Record<td><td></td><td></td></tr>`);
+                            console.log("not found"); 
+                        }
+                        else
+                        {
+                        let rows = "";
+                        data.forEach(function (task) {
+                            rows += `<tr>
+                                            <td>${task.title}</td>
+                                            <td>${task.description}</td>
+                                            <td>${task.status}</td>
+                                            <td>${task.priority}</td>
+                                            <td>${task.due_date}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                onclick="deletemodel('${task.title}')">Delete</button>
+                                                <button type="button" class="btn btn-primary" 
+                                                onclick="updatemodel('${task.title}','${task.description}','${task.status}','${task.priority}','${task.due_date}','${task.dependency}','${task.subtasks}')" data-bs-toggle="modal" data-bs-target="#updateModel">Update</button>
+                                                </td>                            
+                                        </tr>`;
+                        })
+                        $('#mytable tr:gt(2)').remove();
+                        $("#mytable").append(rows);
+                    }
+                    },
+                    error: function (e) {
+                        console.log(e);
+
+                    }
+                })
+        }
+
         $(document).ready(function () {
             $('#addModal').on('shown.bs.modal', function () {
                 $("#etitle").attr("hidden", true);
@@ -289,7 +349,6 @@
                 $("#estatus").attr("hidden", true);
 
             });
-
 
             $('#updateModel').on('shown.bs.modal', function () {
                 $("#emtitle").attr("hidden", true);
@@ -471,10 +530,21 @@
             function show_table() {
                 $.ajax({
                     type: "get",
-                    url: "/show",
+                    url: "/show-table",
                     success: function (data) {
+                        if(data.length==0)
+                        {
+                           $("#mytable").append(`<tr><td></td><td></td><td style="color:red;">Not Found Record<td><td></td><td></td></tr>`);
+                            console.log("not found");
+                            
+                        }
+                        else
+                        {
+
+                        
                         let rows = "";
                         data.forEach(function (task) {
+                        
                             rows += `<tr>
                                             <td>${task.title}</td>
                                             <td>${task.description}</td>
@@ -489,53 +559,15 @@
                                                 </td>                            
                                         </tr>`;
                         })
-                        $('#mytable tr:gt(0)').remove();
+                        $('#mytable tr:gt(2)').remove();
                         $("#mytable").append(rows);
+                    }
                     },
                     error: function (e) {
                         console.log(e);
                     }
                 });
             }
-
-            // search data
-            $("#searchform").on('submit', function (e) {
-                e.preventDefault();
-                console.log($("#searchdata").val());
-                $.ajax({
-                    type: 'post',
-                    url: '/show-search',
-                    data: {
-                        searchdata: $("#searchdata").val(),
-                    },
-                    success: function (data) {
-                        console.log(data);
-                        let rows = "";
-                        data.forEach(function (task) {
-                            rows += `<tr>
-                                            <td>${task.title}</td>
-                                            <td>${task.description}</td>
-                                            <td>${task.status}</td>
-                                            <td>${task.priority}</td>
-                                            <td>${task.due_date}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                onclick="deletemodel('${task.title}')">Delete</button>
-                                                <button type="button" class="btn btn-primary" 
-                                                onclick="updatemodel('${task.title}','${task.description}','${task.status}','${task.priority}','${task.due_date}','${task.dependency}','${task.subtasks}')" data-bs-toggle="modal" data-bs-target="#updateModel">Update</button>
-                                                </td>                            
-                                        </tr>`;
-                        })
-                        $('#mytable tr:gt(0)').remove();
-                        $("#mytable").append(rows);
-                    },
-                    error: function (e) {
-                        console.log(e);
-
-                    }
-                })
-
-            })
 
             // modify model
             $('#modifyform').on('submit', function (e) {
@@ -632,6 +664,7 @@
                             $(".btn-close").trigger("click");
                             show_table();
                             toastr.success('Task added to Data!');
+                            $('#addformmodel')[0].reset();
                         }
                         else {
                             console.log(res);

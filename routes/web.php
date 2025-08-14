@@ -4,8 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Task_Controller;
 use Illuminate\Support\Facades\Route;
 
-Route::get("/", [Task_Controller::class,"show_table"])->name("show");
-Route::get("/show", [Task_Controller::class,"show"]);
+Route::get("/show", [Task_Controller::class,"show_table"])->name("show");
+Route::get("/show-table", [Task_Controller::class,"show"]);
 Route::delete('/remove', [Task_Controller::class,'remove'])->name('remove');
 Route::post('/add', [Task_Controller::class,'add'])->name('add');
 Route::put('/modify', [Task_Controller::class,'update'])->name('modify');

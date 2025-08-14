@@ -8,7 +8,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
          <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
-         
+         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+        integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
@@ -30,30 +32,22 @@
                     <div style="color:red;">{{$message}}</div>
                 @enderror
 
-                <div data-mdb-input-init class="form-outline mb-4">
-
+                <div data-mdb-input-init class="form-outline mb-4" style="position: relative;">
                     <label class="form-label" for="form2Example2">Password</label>
-                    <input type="password" class="form-control" value="{{old('password')}}" id="password"
-                        name="password" />
+                    <input type="password" class="form-control" id='password' name="password"
+                        value="{{old('password')}}" id="password" />
+
+                    <i class="fa-solid fa-eye" id="show" style="position: absolute;top: 44px;right: 10px;"
+                        onclick="passwordshow()"></i>
+                    <i class="fa-solid fa-eye-slash" hidden id="hidden"
+                        style="position: absolute;top: 44px;right: 10px;" onclick="passwordhidden()"></i>
                 </div>
                 @error('password')
                     <div style="color:red;">{{$message}}</div>
                 @enderror
                 
                 <br>
-                <div class="row mb-4">
-                    <div class="col d-flex justify-content-center">
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="form2Example31" checked />
-                            <label class="form-check-label" for="form2Example31"> Remember me </label>
-                        </div>
-                    </div>
-
-                    <div class="col">
-                        <a href="#!">Forgot password?</a>
-                    </div>
-                </div>
+                
 
 
                 <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block mb-4"
@@ -62,7 +56,6 @@
 
                 <div class="text-center">
                     <p>Not a member? <a href="/registration">Register</a></p>
-                    <p>or sign up with:</p>
                     <button type="button" data-mdb-button-init data-mdb-ripple-init
                         class="btn btn-link btn-floating mx-1">
                         <i class="fab fa-facebook-f"></i>
@@ -96,6 +89,19 @@
         toastr.error('User not found');
     </script>
 @endif
+<script>
+        function passwordhidden() {
+            $("#show").removeAttr("hidden");
+            $("#hidden").attr("hidden", true);
+            document.getElementById("password").type = "password";
+
+        }
+        function passwordshow() {
+            $("#hidden").removeAttr("hidden");
+            $("#show").attr("hidden", true);
+            document.getElementById("password").type = "text";
+        }
+    </script>
 </body>
 
 </html>
