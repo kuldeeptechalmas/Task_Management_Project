@@ -21,53 +21,36 @@
 </head>
 
 <body>
-
     @auth
-        <form>
-            @csrf
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#logoutmodel"
-                style="margin-left: 85%; width: 152px; height:43px;margin-top: 25px;">Logout</button>
+        <div >
+            <form>
+                @csrf
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#logoutmodel"
+                    style="margin-left: 85%; width: 152px; height:43px;margin-top: 25px;">Logout</button>
 
-        </form>
+            </form>
 
-
-        <h1 style="text-align: center; margin-top: 20px;">Show Task</h1>
-
-        <table class="table table-striped table-hover" style="margin-left: 30px; margin-top: 40px;" id="mytable">
-            <tr>
-                <form class="d-flex" id="searchform">
+            <h1 style="text-align: center; margin-top: 20px;">Show Task</h1>
+<table class="table table-striped table-hover">
+            <form class="d-flex" id="searchform">
                     <td><input class="form-control me-2" oninput="searchfunction()" id="searchdata" type="search"
-                            name="searchdata" placeholder="Search" aria-label="Search"></td>
-                    <td><button class="btn btn-outline-success" type="submit">Search</button></td>
+                            name="searchdata" placeholder="Search" aria-label="Search">
+                    <td><button class="btn btn-outline-success" onclick="searchfunction()" type="button">Search</button>
+                    </td>
                 </form>
+</table>
                 </td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>WELCOME {{Auth::USER()->name}}</td>
-            </tr>
-            <tr>
+                <div id="show-data">
+                    @include('tableofdata', ['data' => $data])
+                </div>
+            
 
-            </tr>
-            <tr>
-                <td>Title</td>
-                <td>Description</td>
-                <td>Status</td>
-                <td>Priority</td>
-                <td>Due Date</td>
-                <td>Actions</td>
-            </tr>
-            <tr>
+            {{-- add button model--}}
+            <button type="button" class="btn btn-primary" style="margin-left: 50px" data-bs-toggle="modal"
+                data-bs-target="#addModal">Add</button>
 
-            </tr>
-        </table>
-
-        {{-- add button model--}}
-        <button type="button" class="btn btn-primary" style="margin-left: 50px" data-bs-toggle="modal"
-            data-bs-target="#addModal">Add</button>
-
-        <div id="pagination" class="mt-3"></div>
-
+            <div id="pagination" class="mt-3"></div>
+        </div>
 
 
     @endauth
@@ -110,13 +93,13 @@
                         <label for="exampleInputEmail1" class="form-label">Task Title</label>
                         <input type="text" name="title" style="width: 277%" id="mtitle" class="form-control"
                             value="{{old('title')}}">
-                        <div class="alert alert-danger" id="emtitle" style="width: 277%" hidden></div>
+                        <div class="alert alert-danger" id="emtitle" style="width: 277%; display: none;"></div>
                     </div>
                     <div class="mb-3">
                         <label for="exampleInputEmail1" class="form-label">Task Description</label>
                         <input type="text" name="description" id="mdescription" style="width: 277%" class="form-control"
                             value="{{old('description')}}">
-                        <div class="alert alert-danger" id="emdescription" style="width: 277%" hidden></div>
+                        <div class="alert alert-danger" id="emdescription" style="width: 277%;display: none;" ></div>
                     </div>
 
                     <div class="mb-3">
@@ -132,26 +115,26 @@
                             </option>
                             <option value="Low" {{old('priority') == 'Low' ? 'selected' : ''}}>Low</option>
                         </select>
-                        <div class="alert alert-danger" id="empriority" style="width: 277%" hidden></div>
+                        <div class="alert alert-danger" id="empriority" style="width: 277%;display: none;" ></div>
                     </div>
                     <div class="mb-3">
                         <label for="exampleInputEmail1" class="form-label">Due Date</label>
                         <input type="date" name="due_date" id="mdue_date" style="width: 277%" class="form-control"
                             value="{{old('due_date')}}">
-                        <div class="alert alert-danger" id="emdue_date" style="width: 277%" hidden></div>
+                        <div class="alert alert-danger" id="emdue_date" style="width: 277%;display: none;"></div>
                     </div>
                     <div class="mb-3">
                         <label for="exampleInputEmail1" class="form-label">Dependency</label>
                         <input type="text" name="dependency" id="mdependency" style="width: 277%" class="form-control"
                             value="{{old('dependency')}}">
-                        <div class="alert alert-danger" id="emdependency" style="width: 277%" hidden></div>
+                        <div class="alert alert-danger" id="emdependency" style="width: 277%;display: none;"></div>
                     </div>
 
                     <div class="mb-3">
                         <label for="exampleInputEmail1" class="form-label">Subtasks</label>
                         <input type="text" name="subtasks" id="msubtasks" style="width: 277%" class="form-control"
                             value="{{old('subtasks')}}">
-                        <div class="alert alert-danger" id="emsubtasks" style="width: 277%" hidden></div>
+                        <div class="alert alert-danger" id="emsubtasks" style="width: 277%;display: none;"></div>
                     </div>
                     <div class="mb-3">
                         <label for="exampleInputEmail1" class="form-label">Status Logic</label>
@@ -283,6 +266,7 @@
         }
 
         function updatemodel(id, title, description, status, priority, due_date, dependency, subtasks) {
+            $("#updateModel").find(".alert").css("display", "none");
             document.getElementById('mtitle').value = title;
             document.getElementById('mid').value = id;
             document.getElementById('mdescription').value = description;
@@ -296,9 +280,28 @@
     <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
     <script>
 
+        $(document).on('click', ".pagination a", function (e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            fetchData(url);
+        });
+
+        function fetchData(url) {
+            $.ajax({
+                type: "get",
+                url: url,
+                dataType: "html",
+                success: function (res) {
+                    $("#show-data").html(res);
+                },
+                error: function (e) {
+
+                }
+            })
+        }
         // search data
         function searchfunction() {
-            // e.preventDefault();
+
             console.log($("#searchdata").val());
             $.ajax({
                 type: 'post',
@@ -307,30 +310,14 @@
                     searchdata: $("#searchdata").val(),
                 },
                 success: function (data) {
+
                     if (data.length == 0) {
                         $('#mytable tr:gt(2)').remove();
                         $("#mytable").append(`<tr><td></td><td></td><td style="color:red;">Not Found Record<td><td></td><td></td></tr>`);
                         console.log("not found");
                     }
                     else {
-                        let rows = "";
-                        data.forEach(function (task) {
-                            rows += `<tr>
-                                            <td>${task.title}</td>
-                                            <td>${task.description}</td>
-                                            <td>${task.status}</td>
-                                            <td>${task.priority}</td>
-                                            <td>${task.due_date}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                onclick="deletemodel('${task.title}')">Delete</button>
-                                                <button type="button" class="btn btn-primary" 
-                                                onclick="updatemodel('${task.title}','${task.description}','${task.status}','${task.priority}','${task.due_date}','${task.dependency}','${task.subtasks}')" data-bs-toggle="modal" data-bs-target="#updateModel">Update</button>
-                                                </td>                            
-                                        </tr>`;
-                        })
-                        $('#mytable tr:gt(2)').remove();
-                        $("#mytable").append(rows);
+                         $("#show-data").html(data);
                     }
                 },
                 error: function (e) {
@@ -340,64 +327,8 @@
             })
         }
 
+
         $(document).ready(function () {
-
-            // function of show table
-            function show_table() {
-                
-                $.ajax({
-                    type: "get",
-                    url: "/show-table",
-                    success: function (data) {
-
-                        if (data.length == 0) {
-                            $("#mytable").append(`<tr><td></td><td></td><td style="color:red;">Not Found Record<td><td></td><td></td></tr>`);
-                            console.log("not found");
-
-                        }
-                        else {
-
-                            let rows = "";
-                            data.data.forEach(function (task) {
-
-                                rows += `<tr>
-                                            <td>${task.title}</td>
-                                            <td>${task.description}</td>
-                                            <td>${task.status}</td>
-                                            <td>${task.priority}</td>
-                                            <td>${task.due_date}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                onclick="deletemodel('${task.title}')">Delete</button>
-                                                <button type="button" class="btn btn-primary" 
-                                                onclick="updatemodel('${task.id}','${task.title}','${task.description}','${task.status}','${task.priority}','${task.due_date}','${task.dependency}','${task.subtasks}')" data-bs-toggle="modal" data-bs-target="#updateModel">Update</button>
-                                                </td>                            
-                                        </tr>`;
-
-                            })
-                            $('#mytable tr:gt(2)').remove();
-                            $("#mytable").append(rows);
-
-                            let paginationHtml = "";
-
-                            if (data.prev_page_url) {
-                                console.log(data.prev_page_url);
-                                
-                                // paginationHtml += `<a class="btn btn-secondary me-2" href="'${data.prev_page_url}'">Previous</a>`;
-                            }
-                            if (data.next_page_url) {
-                                console.log(data.next_page_url);
-                                paginationHtml += `<button class="btn btn-secondary" onclick="show_table('${data.next_page_url}')">Next</button>`;
-                            }
-
-                            $("#pagination").html(paginationHtml);
-                        }
-                    },
-                    error: function (e) {
-                        console.log(e);
-                    }
-                });
-            }
 
             $('#addModal').on('shown.bs.modal', function () {
                 $("#etitle").attr("hidden", true);
@@ -407,17 +338,6 @@
                 $("#esubtasks").attr("hidden", true);
                 $("#estatus").attr("hidden", true);
                 $("#estatus").attr("hidden", true);
-
-            });
-
-            $('#updateModel').on('shown.bs.modal', function () {
-                $("#emtitle").attr("hidden", true);
-                $("#emdescription").attr("hidden", true);
-                $("#empriority").attr("hidden", true);
-                $("#emdependency").attr("hidden", true);
-                $("#emsubtasks").attr("hidden", true);
-                $("#emstatus").attr("hidden", true);
-                $("#emstatus").attr("hidden", true);
 
             });
 
@@ -508,76 +428,76 @@
 
             // function of validation error for add data
             function validation_error_modify(res) {
-                console.log(res);
 
                 if ($.inArray("The title field is required.", res['title']) !== -1) {
-                    $("#emtitle").removeAttr("hidden");
+                    // $("#emtitle").;
+                    $("#emtitle").css("display", "block");
                     $("#emtitle").text(res['title'][0]);
                 }
                 else {
                     if ($.inArray("The title has already been taken.", res['title']) !== -1) {
-                        $("#emtitle").removeAttr("hidden");
+                        $("#emtitle").css("display", "block");
                         $("#emtitle").text(res['title'][0]);
                     }
                     else {
-                        $("#emtitle").attr("hidden", true);
+                        $("#emtitle").css("display", "none");
                     }
 
                 }
 
                 if ($.inArray("The description field is required.", res['description']) !== -1) {
-                    $("#emdescription").removeAttr("hidden");
+                    $("#emdescription").css("display", "block");
                     $("#emdescription").text(res['description'][0]);
                 }
                 else {
                     if ($.inArray("The description field must be at least 5 characters.", res['description']) !== -1) {
-                        $("#emdescription").removeAttr("hidden");
+                        $("#emdescription").css("display", "block");
                         $("#emdescription").text(res['description'][0]);
                     }
                     else {
-                        $("#emdescription").attr("hidden", true);
+                        $("#emdescription").css("display", "none");
                     }
 
                 }
 
                 if ($.inArray("The priority field is required.", res['priority']) !== -1) {
-                    $("#empriority").removeAttr("hidden");
+                    $("#empriority").css("display", "block");
                     $("#empriority").text(res['priority'][0]);
                 }
                 else {
-                    $("#empriority").attr("hidden", true);
+                    $("#empriority").css("display", "nome");
                 }
 
                 if ($.inArray("The due date field is required.", res['due_date']) !== -1) {
-                    $("#emdue_date").removeAttr("hidden");
+                    $("#emdue_date").css("display", "block");
                     $("#emdue_date").text(res['due_date'][0]);
                 }
                 else {
-                    $("#emstatus").attr("hidden", true);
+                    $("#emstatus").css("display", "none");
                 }
 
                 if ($.inArray("The dependency field is required.", res['dependency']) !== -1) {
-                    $("#emdependency").removeAttr("hidden");
+                    $("#emdependency").css("display", "block");
                     $("#emdependency").text(res['dependency'][0]);
                 }
                 else {
-                    $("#emdependency").attr("hidden", true);
+                    $("#emdependency").css("display", "none");
                 }
 
                 if ($.inArray("The subtasks field is required.", res['subtasks']) !== -1) {
-                    $("#emsubtasks").removeAttr("hidden");
+                    $("#emsubtasks").css("display", "block");
                     $("#emsubtasks").text(res['subtasks'][0]);
                 }
                 else {
-                    $("#emsubtasks").attr("hidden", true);
+                    $("#emsubtasks").css("display", "none");
                 }
 
                 if ($.inArray("The status field is required.", res['status']) !== -1) {
-                    $("#emstatus").removeAttr("hidden");
+                    $("#emstatus").css("display", "block");
                     $("#emstatus").text(res['status'][0]);
                 }
                 else {
-                    $("#emstatus").attr("hidden", true);
+                    $("#emstatus").css("display", "none");
                 }
             }
 
@@ -599,8 +519,7 @@
                         status: $("#mstatus").val(),
                     },
                     success: function (res) {
-                        console.log(res);
-
+                    
                         if (res.success == "modify") {
                             console.log("save");
                             $(".btn-close").trigger("click");
@@ -651,8 +570,20 @@
 
             });
 
-            // get data 
-            show_table();
+
+            // show function
+            function show_table() {
+                $.ajax({
+                    type: "get",
+                    url: "/show",
+                    success: function (data) {
+                        $("#show-data").html(data);
+                    },
+                    error: function (e) {
+                        console.log(e);
+                    }
+                });
+            }
 
             // add model
             $('#addformmodel').on('submit', function (e) {
@@ -679,8 +610,7 @@
                             $('#addformmodel')[0].reset();
                         }
                         else {
-                            console.log(res);
-
+                          
                             validation_error(res);
                             toastr.warning("Fial Record");
                         }
