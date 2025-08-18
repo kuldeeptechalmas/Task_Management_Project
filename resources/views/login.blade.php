@@ -56,25 +56,6 @@
 
                 <div class="text-center">
                     <p>Not a member? <a href="/registration">Register</a></p>
-                    <button type="button" data-mdb-button-init data-mdb-ripple-init
-                        class="btn btn-link btn-floating mx-1">
-                        <i class="fab fa-facebook-f"></i>
-                    </button>
-
-                    <button type="button" data-mdb-button-init data-mdb-ripple-init
-                        class="btn btn-link btn-floating mx-1">
-                        <i class="fab fa-google"></i>
-                    </button>
-
-                    <button type="button" data-mdb-button-init data-mdb-ripple-init
-                        class="btn btn-link btn-floating mx-1">
-                        <i class="fab fa-twitter"></i>
-                    </button>
-
-                    <button type="button" data-mdb-button-init data-mdb-ripple-init
-                        class="btn btn-link btn-floating mx-1">
-                        <i class="fab fa-github"></i>
-                    </button>
                 </div>
             </form>
         </div>

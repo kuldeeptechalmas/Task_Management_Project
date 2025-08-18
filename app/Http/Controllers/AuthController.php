@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\users;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 
@@ -17,26 +18,27 @@ class AuthController extends Controller
 
             $validator = Validator::make($request->all(), [
                 "email" => "Required",
-                "password" => [
-                    'required',
-                    "max:16",
-                    Password::min(8)
-                        ->mixedCase()
-                        ->letters()
-                        ->numbers()
-                        ->symbols(),
-                ],
+                "password" => "Required",
             ]);
 
             if ($validator->fails()) {
                 return redirect()->back()->withErrors($validator)->withInput();
             }
 
+            if (User::where('email', $request->email)->exists()) {
+
+                $users = User::where('email', $request->email)->first();
+
+                if (!Hash::check($request->password, $users->password)) { {
+                        return redirect()->back()->withErrors(['password' => 'The password is Invelid.'])->withInput();
+                    }
+                }
+            }
+
             if (Auth::attempt($request->only('email', 'password'))) {
-                // $request->session()->regenerate();
                 return redirect()->route("show");
             } else {
-                // $request->session()->invalidate();
+
                 return redirect()->back()->with('error', 'invalid user');
             }
         }
@@ -86,7 +88,6 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-        // $request->session()->invalidate();
         return redirect()->route("login");
     }
 }

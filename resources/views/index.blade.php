@@ -40,11 +40,8 @@
                             name="searchdata" placeholder="Search" aria-label="Search"></td>
                     <td><button class="btn btn-outline-success" type="submit">Search</button></td>
                 </form>
-                <form id="refreshform">
-                    <td><button class="btn btn-outline-success" type="submit">Show</button></td>
-                </form>
-
                 </td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>WELCOME {{Auth::USER()->name}}</td>
@@ -60,12 +57,19 @@
                 <td>Due Date</td>
                 <td>Actions</td>
             </tr>
-            <tr></tr>
+            <tr>
+
+            </tr>
         </table>
 
         {{-- add button model--}}
         <button type="button" class="btn btn-primary" style="margin-left: 50px" data-bs-toggle="modal"
             data-bs-target="#addModal">Add</button>
+
+        <div id="pagination" class="mt-3"></div>
+
+
+
     @endauth
     <!-- Delete Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -294,23 +298,21 @@
 
         // search data
         function searchfunction() {
-                // e.preventDefault();
-                console.log($("#searchdata").val());
-                $.ajax({
-                    type: 'post',
-                    url: '/show-search',
-                    data: {
-                        searchdata: $("#searchdata").val(),
-                    },
-                    success: function (data) {
-                    if(data.length==0)
-                        {
-                            $('#mytable tr:gt(2)').remove();
-                           $("#mytable").append(`<tr><td></td><td></td><td style="color:red;">Not Found Record<td><td></td><td></td></tr>`);
-                            console.log("not found"); 
-                        }
-                        else
-                        {
+            // e.preventDefault();
+            console.log($("#searchdata").val());
+            $.ajax({
+                type: 'post',
+                url: '/show-search',
+                data: {
+                    searchdata: $("#searchdata").val(),
+                },
+                success: function (data) {
+                    if (data.length == 0) {
+                        $('#mytable tr:gt(2)').remove();
+                        $("#mytable").append(`<tr><td></td><td></td><td style="color:red;">Not Found Record<td><td></td><td></td></tr>`);
+                        console.log("not found");
+                    }
+                    else {
                         let rows = "";
                         data.forEach(function (task) {
                             rows += `<tr>
@@ -330,15 +332,73 @@
                         $('#mytable tr:gt(2)').remove();
                         $("#mytable").append(rows);
                     }
-                    },
-                    error: function (e) {
-                        console.log(e);
+                },
+                error: function (e) {
+                    console.log(e);
 
-                    }
-                })
+                }
+            })
         }
 
         $(document).ready(function () {
+
+            // function of show table
+            function show_table() {
+                
+                $.ajax({
+                    type: "get",
+                    url: "/show-table",
+                    success: function (data) {
+
+                        if (data.length == 0) {
+                            $("#mytable").append(`<tr><td></td><td></td><td style="color:red;">Not Found Record<td><td></td><td></td></tr>`);
+                            console.log("not found");
+
+                        }
+                        else {
+
+                            let rows = "";
+                            data.data.forEach(function (task) {
+
+                                rows += `<tr>
+                                            <td>${task.title}</td>
+                                            <td>${task.description}</td>
+                                            <td>${task.status}</td>
+                                            <td>${task.priority}</td>
+                                            <td>${task.due_date}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                onclick="deletemodel('${task.title}')">Delete</button>
+                                                <button type="button" class="btn btn-primary" 
+                                                onclick="updatemodel('${task.id}','${task.title}','${task.description}','${task.status}','${task.priority}','${task.due_date}','${task.dependency}','${task.subtasks}')" data-bs-toggle="modal" data-bs-target="#updateModel">Update</button>
+                                                </td>                            
+                                        </tr>`;
+
+                            })
+                            $('#mytable tr:gt(2)').remove();
+                            $("#mytable").append(rows);
+
+                            let paginationHtml = "";
+
+                            if (data.prev_page_url) {
+                                console.log(data.prev_page_url);
+                                
+                                // paginationHtml += `<a class="btn btn-secondary me-2" href="'${data.prev_page_url}'">Previous</a>`;
+                            }
+                            if (data.next_page_url) {
+                                console.log(data.next_page_url);
+                                paginationHtml += `<button class="btn btn-secondary" onclick="show_table('${data.next_page_url}')">Next</button>`;
+                            }
+
+                            $("#pagination").html(paginationHtml);
+                        }
+                    },
+                    error: function (e) {
+                        console.log(e);
+                    }
+                });
+            }
+
             $('#addModal').on('shown.bs.modal', function () {
                 $("#etitle").attr("hidden", true);
                 $("#epriority").attr("hidden", true);
@@ -371,11 +431,6 @@
                 headers:
                     { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
             });
-
-            // refresh form 
-            $("#refreshform").on("submit", function (e) {
-                show_table();
-            })
 
             // function of validation error for add data
             function validation_error(res) {
@@ -524,49 +579,6 @@
                 else {
                     $("#emstatus").attr("hidden", true);
                 }
-            }
-
-            // function of show table
-            function show_table() {
-                $.ajax({
-                    type: "get",
-                    url: "/show-table",
-                    success: function (data) {
-                        if(data.length==0)
-                        {
-                           $("#mytable").append(`<tr><td></td><td></td><td style="color:red;">Not Found Record<td><td></td><td></td></tr>`);
-                            console.log("not found");
-                            
-                        }
-                        else
-                        {
-
-                        
-                        let rows = "";
-                        data.forEach(function (task) {
-                        
-                            rows += `<tr>
-                                            <td>${task.title}</td>
-                                            <td>${task.description}</td>
-                                            <td>${task.status}</td>
-                                            <td>${task.priority}</td>
-                                            <td>${task.due_date}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                                onclick="deletemodel('${task.title}')">Delete</button>
-                                                <button type="button" class="btn btn-primary" 
-                                                onclick="updatemodel('${task.id}','${task.title}','${task.description}','${task.status}','${task.priority}','${task.due_date}','${task.dependency}','${task.subtasks}')" data-bs-toggle="modal" data-bs-target="#updateModel">Update</button>
-                                                </td>                            
-                                        </tr>`;
-                        })
-                        $('#mytable tr:gt(2)').remove();
-                        $("#mytable").append(rows);
-                    }
-                    },
-                    error: function (e) {
-                        console.log(e);
-                    }
-                });
             }
 
             // modify model
