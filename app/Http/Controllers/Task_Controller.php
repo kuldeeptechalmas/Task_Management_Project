@@ -14,13 +14,28 @@ use Validator;
 
 class Task_Controller extends Controller
 {
+    public function sort(Request $request)
+    {
+        if ($request->nameasc == "priority" && $request->type == 'asc') {
+
+            $task1 = Task::orderByRaw("FIELD(priority, 'Very high', 'High', 'Medium', 'Low')")->paginate(10);
+            return view("tableofdata", ['data' => $task1]);
+
+        } else if ($request->nameasc == "priority" && $request->type == 'desc') {
+
+            $task1 = Task::orderByRaw("FIELD(priority, 'Low','Medium','High','Very high')")->paginate(10);
+            return view("tableofdata", ['data' => $task1]);
+
+        }
+        $task = task::orderBy($request->nameasc, $request->type)->paginate(10);
+        return view("tableofdata", ['data' => $task]);
+    }
 
     public function show_table(Request $request)
     {
         $task = Task::orderByRaw("FIELD(priority, 'Very high', 'High', 'Medium', 'Low')")->paginate(10);
-        
         if (Auth::user()) {
-            if($request->ajax()){
+            if ($request->ajax()) {
                 return view("tableofdata", ['data' => $task]);
             }
             return view("index", ['data' => $task]);
@@ -28,27 +43,6 @@ class Task_Controller extends Controller
             return view("error");
         }
     }
-    // public function show(Request $request)
-    // {
-    //     $task = Task::orderByRaw("FIELD(priority, 'Very high', 'High', 'Medium', 'Low')")->paginate(10);
-
-    //     // if ($request->ajax()) {
-
-    //     //     if (Auth::user()) {
-
-    //     //         return response()->json([
-    //     //             'data' => $task->items(),
-    //     //             'next_page_url' => $task->nextPageUrl(),
-    //     //             'prev_page_url' => $task->previousPageUrl()
-    //     //         ]);
-    //     //     } else {
-    //     //         return view("error");
-    //     //     }
-    //     // }
-    //     dd($task);
-    //     view("index", ['data' => $task]);
-
-    // }
 
     public function remove(Request $request)
     {
@@ -125,9 +119,9 @@ class Task_Controller extends Controller
         }
 
     }
+    
     public function searchdata(Request $request)
     {
-
 
         $task = task::where("title", "LIKE", "%" . $request->searchdata . "%")->
             orwhere("description", "LIKE", "%" . $request->searchdata . "%")->
@@ -135,12 +129,9 @@ class Task_Controller extends Controller
             orwhere("priority", "LIKE", "%" . $request->searchdata . "%")->
             orderByRaw("FIELD(priority, 'Very high', 'High', 'Medium', 'Low')")->paginate(10);
 
-
-            
-            if($request->ajax()){
-                return view("tableofdata", ['data' => $task]);
-            }
-            return view("index", ['data' => $task]);
+        if ($request->ajax()) {
+            return view("tableofdata", ['data' => $task]);
+        }
+        return view("index", ['data' => $task]);
     }
-
 }

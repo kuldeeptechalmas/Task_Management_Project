@@ -7,6 +7,7 @@ use App\Models\users;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 
@@ -36,6 +37,9 @@ class AuthController extends Controller
             }
 
             if (Auth::attempt($request->only('email', 'password'))) {
+                session([
+                    'username' => $request->email,
+                ]);
                 return redirect()->route("show");
             } else {
 
@@ -88,6 +92,8 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
+        Session::forget("username");
         return redirect()->route("login");
+        
     }
 }

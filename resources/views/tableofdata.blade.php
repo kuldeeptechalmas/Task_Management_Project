@@ -1,23 +1,5 @@
 <table class="table table-striped table-hover" style="margin-left: 30px; margin-top: 40px;" id="mytable">
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>WELCOME {{Auth::USER()->name}}</td>
-            </tr>
-            <tr>
-
-            </tr>
-            <tr>
-                <td>Title</td>
-                <td>Description</td>
-                <td>Status</td>
-                <td>Priority</td>
-                <td>Due Date</td>
-                <td>Actions</td>
-            </tr>
+           
             @if (isset($data))
                 @foreach ($data as $item)
                     <tr>

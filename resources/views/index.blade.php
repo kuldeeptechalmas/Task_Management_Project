@@ -10,6 +10,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+        integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         .alert {
             width: 81%;
@@ -22,7 +25,7 @@
 
 <body>
     @auth
-        <div >
+        <div>
             <form>
                 @csrf
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#logoutmodel"
@@ -31,19 +34,46 @@
             </form>
 
             <h1 style="text-align: center; margin-top: 20px;">Show Task</h1>
-<table class="table table-striped table-hover">
-            <form class="d-flex" id="searchform">
-                    <td><input class="form-control me-2" oninput="searchfunction()" id="searchdata" type="search"
-                            name="searchdata" placeholder="Search" aria-label="Search">
+            <table class="table table-striped table-hover" style="margin-left: 30px; margin-top: 40p">
+                <form class="d-flex" id="searchform">
+
+                    
                     <td><button class="btn btn-outline-success" onclick="searchfunction()" type="button">Search</button>
                     </td>
+                    <td>
+                        <input class="form-control me-2" oninput="searchfunction()" id="searchdata" type="search"
+                            name="searchdata" placeholder="Search" aria-label="Search">
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>WELCOME {{Auth::USER()->name}}</td>
+
                 </form>
-</table>
-                </td>
-                <div id="show-data">
-                    @include('tableofdata', ['data' => $data])
-                </div>
-            
+
+                <tr>
+                    <td>Title
+                        <i class="fa-solid fa-angle-up" onclick="titleAsc()" id="titleasc" hidden></i>
+                        <i class="fa-solid fa-angle-down" onclick="titleDesc()" id="titledesc"></i>
+                    </td>
+                    <td style="width: 370px;">Description
+                        <i class="fa-solid fa-angle-up" onclick="descriptionAsc()" id="descriptionasc" hidden></i>
+                        <i class="fa-solid fa-angle-down" onclick="descriptionDesc()" id="descriptiondesc"></i>
+                    </td>
+                    <td>Status</td>
+                    <td>Priority
+                        <i class="fa-solid fa-angle-up" onclick="priorityAsc()" id="priorityasc" hidden></i>
+                        <i class="fa-solid fa-angle-down" onclick="priorityDesc()" id="prioritydesc"></i>
+                    </td>
+                    <td>Due Date</td>
+                    <td>Actions</td>
+                </tr>
+            </table>
+            </td>
+            <div id="show-data">
+                @include('tableofdata', ['data' => $data])
+            </div>
+
 
             {{-- add button model--}}
             <button type="button" class="btn btn-primary" style="margin-left: 50px" data-bs-toggle="modal"
@@ -52,6 +82,8 @@
             <div id="pagination" class="mt-3"></div>
         </div>
 
+<input type="text" name="" id="nameasc" hidden>
+<input type="text" name="" id="type" hidden>
 
     @endauth
     <!-- Delete Modal -->
@@ -99,7 +131,7 @@
                         <label for="exampleInputEmail1" class="form-label">Task Description</label>
                         <input type="text" name="description" id="mdescription" style="width: 277%" class="form-control"
                             value="{{old('description')}}">
-                        <div class="alert alert-danger" id="emdescription" style="width: 277%;display: none;" ></div>
+                        <div class="alert alert-danger" id="emdescription" style="width: 277%;display: none;"></div>
                     </div>
 
                     <div class="mb-3">
@@ -115,7 +147,7 @@
                             </option>
                             <option value="Low" {{old('priority') == 'Low' ? 'selected' : ''}}>Low</option>
                         </select>
-                        <div class="alert alert-danger" id="empriority" style="width: 277%;display: none;" ></div>
+                        <div class="alert alert-danger" id="empriority" style="width: 277%;display: none;"></div>
                     </div>
                     <div class="mb-3">
                         <label for="exampleInputEmail1" class="form-label">Due Date</label>
@@ -258,7 +290,67 @@
         crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
 
+        function titleAsc() {
+            $("#titledesc").removeAttr("hidden");
+            $("#titleasc").attr("hidden", true);
+            AscDesc('title', 'asc');
+        }
+        function titleDesc() {
+            $("#titleasc").removeAttr("hidden");
+            $("#titledesc").attr("hidden", true);
+            AscDesc('title', 'desc');
+        }
+
+        function descriptionAsc() {
+            console.log('asc');
+            $("#descriptiondesc").removeAttr("hidden");
+            $("#descriptionasc").attr("hidden", true);
+            AscDesc('description', 'asc');
+        }
+        function descriptionDesc() {
+            console.log('dasc');
+            $("#descriptionasc").removeAttr("hidden");
+            $("#descriptiondesc").attr("hidden", true);
+            AscDesc('description', 'desc');
+        }
+
+        function priorityAsc() {
+            console.log('asc');
+            $("#prioritydesc").removeAttr("hidden");
+            $("#priorityasc").attr("hidden", true);
+            AscDesc('priority', 'asc');
+        }
+        function priorityDesc() {
+            console.log('dasc');
+            $("#priorityasc").removeAttr("hidden");
+            $("#prioritydesc").attr("hidden", true);
+            AscDesc('priority', 'desc');
+        }
+
+        function AscDesc(nameasc, type) {
+            document.getElementById('nameasc').value = nameasc;
+            document.getElementById('type').value = type;
+            $.ajax({
+                type: "get",
+                url: '/sort',
+                data: {
+                    nameasc: nameasc,
+                    type: type
+                },
+                dataType: "html",
+                success: function (res) {
+                    $("#show-data").html(res);
+                },
+                error: function (e) {
+
+                }
+
+            })
+
+        }
+    </script>
     <script>
         function deletemodel(title) {
             document.getElementById('getdeletedata').value = title;
@@ -290,6 +382,11 @@
             $.ajax({
                 type: "get",
                 url: url,
+                data: {
+                    searchdata: $("#searchdata").val(),
+                    nameasc: $("#nameasc").val(),
+                    type: $("#type").val(),
+                },
                 dataType: "html",
                 success: function (res) {
                     $("#show-data").html(res);
@@ -304,7 +401,7 @@
 
             console.log($("#searchdata").val());
             $.ajax({
-                type: 'post',
+                type: 'get',
                 url: '/show-search',
                 data: {
                     searchdata: $("#searchdata").val(),
@@ -317,7 +414,7 @@
                         console.log("not found");
                     }
                     else {
-                         $("#show-data").html(data);
+                        $("#show-data").html(data);
                     }
                 },
                 error: function (e) {
@@ -519,7 +616,7 @@
                         status: $("#mstatus").val(),
                     },
                     success: function (res) {
-                    
+
                         if (res.success == "modify") {
                             console.log("save");
                             $(".btn-close").trigger("click");
@@ -610,7 +707,7 @@
                             $('#addformmodel')[0].reset();
                         }
                         else {
-                          
+
                             validation_error(res);
                             toastr.warning("Fial Record");
                         }
